@@ -1,90 +1,117 @@
-// import logo from './logo.svg';
-import React, { useState, useEffect } from 'react';
-import { Form, Card, Image, Icon, Item} from 'semantic-ui-react';
-import logo from './logo.png';
-import './App.css';
-
+import React, { useState, useEffect } from "react";
+import { Form, Card, Image, Icon } from "semantic-ui-react";
+import "./App.css";
 
 function App() {
-  const [name, setName] = useState('');
-  const [userName, setUsername] = useState('');
-  const [followers, setFollowers] = useState('');
-  const [following, setFollowing] = useState('');
-  const [avatar, setAvatar] = useState('');
-  const [public_repos, setPublicRepos] = useState('');
-  const [repository, setRepository] = useState('');
+  const [name, setName] = useState("");
+  const [userName, setUsername] = useState("");
+  const [followers, setFollowers] = useState("");
+  const [following, setFollowing] = useState("");
+  const [repos, setRepos] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("https://api.github.com/users/example")
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setData(data);
       });
   }, []);
 
-  const setData = ({ name, login, followers, following, avatar_url, public_repos, repos_url }) => {
+  const setData = ({
+    name,
+    login,
+    followers,
+    following,
+    avatar_url,
+    public_repos,
+  }) => {
     setName(name);
     setUsername(login);
     setFollowers(followers);
     setFollowing(following);
+    setRepos(public_repos);
     setAvatar(avatar_url);
-    setPublicRepos(public_repos);
-    setRepository(repos_url);
+  };
+
+  const handleSearch = (e) => {
+    setUserInput(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    fetch(`https://api.github.com/users/${userInput}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message) {
+          setError(data.message);
+        } else {
+          setData(data);
+          setError(null);
+        }
+      });
   };
 
   return (
-        <div class="main">
-          <div class="navbar">
-          <div class="search">
-          <Form class="search-wrapper">
-          <Form.Group>
-            <Icon name='search' />
-            <Form.Input
-              placeholder='Enter GitHub username'
-              name='github username'
+    <div>
+      <div class="navbar">
+        <a class="logo">
+          <Icon name="github" />
+        </a>
+        <div class="search">
+          <Form onSubmit={handleSubmit}>
+            <Form.Group>
+              <Form.Input
+                placeholder="Enter GitHub user"
+                name="github user"
+                onChange={handleSearch}
               />
-          </Form.Group>
-        </Form>
-          </div>
-          </div>
-      <img class="frame" src="" alt="Bootstrap" width="30" height="24" />
-      <div class="card">
-         <Card>
-    <Image src={avatar} wrapped ui={false} />
-    <Card.Content>
-      <Card.Header>{name}</Card.Header>
-      <a><Card.a>{userName}</Card.a></a>
-    </Card.Content>
-    <Card.Content extra>
-      <a>
-        <Icon name='users' />
-              {followers} followers
-      </a>
-      <a>
-        <Icon name='user' />
-              {following} following
-      </a>
-          </Card.Content>
-        </Card>
+              <Form.Button content="Search" />
+            </Form.Group>
+          </Form>
+        </div>
       </div>
-      <h1>test</h1>
-        <Item.Group>
-    <Item>
-      <Item.Image size='tiny' src='/images/wireframe/image.png' />
+      {error ? (
+        <h1 class="display-error">{error}</h1>
+      ) : (
+        <div class="card">
+          <Card>
+            <Image src={avatar} wrapped ui={false} class="picture" />
+            <Card.Content>
+              <Card.Header>{name}</Card.Header>
+              <Card.Header>{userName}</Card.Header>
+              {/* <Card.Meta>
+        <span className='date'>Joined in 2015</span>
+      </Card.Meta>
+      <Card.Description>
+        Matthew is a musician living in Nashville.
+      </Card.Description> */}
+            </Card.Content>
+            <Card.Content extra>
+              <a>
+                <Icon name="users" />
+                {followers} Followers
+              </a>
+            </Card.Content>
 
-      <Item.Content>
-        <Item.Header>Arrowhead Valley Camp</Item.Header>
-        <Item.Meta>
-          <span className='price'>$1200</span>
-          <span className='stay'>1 Month</span>
-        </Item.Meta>
-        <Item.Description></Item.Description>
-      </Item.Content>
-    </Item>
-  </Item.Group>
+            <Card.Content extra>
+              <a>
+                <Icon name="user" />
+                {following} Following
+              </a>
+            </Card.Content>
+            <Card.Content extra>
+              <a>
+                <Icon name="github square" />
+                {repos} Repos
+              </a>
+            </Card.Content>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
 
 export default App;
- 
